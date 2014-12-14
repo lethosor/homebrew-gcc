@@ -1,6 +1,6 @@
 require 'formula'
 
-class Gcc45_32 < Formula
+class Gcc4532 < Formula
   def arch
     if Hardware::CPU.type == :intel
       'i686'
@@ -74,7 +74,7 @@ class Gcc45_32 < Formula
       "--prefix=#{prefix}",
       "--enable-languages=#{languages.join(',')}",
       # Make most executables versioned to avoid conflicts.
-      "--program-suffix=-#{version_suffix}",
+      "--program-suffix=-#{version_suffix}-32",
       "--with-gmp=#{Formula["gmp4"].opt_prefix}",
       "--with-mpfr=#{Formula["mpfr2"].opt_prefix}",
       "--with-mpc=#{Formula["libmpc08"].opt_prefix}",
