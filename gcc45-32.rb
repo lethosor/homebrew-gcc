@@ -30,9 +30,6 @@ class Gcc4532 < Formula
   # enabling multilib on a host that can't run 64-bit results in build failures
   option 'disable-multilib', 'Build without multilib support' if MacOS.prefer_64_bit?
 
-  # with system ld on Tiger, build fails with countless messages of:
-  # "relocation overflow for relocation entry"
-  depends_on :ld64
   depends_on 'gmp4'
   depends_on 'libmpc08'
   depends_on 'mpfr2'
@@ -95,6 +92,9 @@ class Gcc4532 < Formula
       "--disable-werror",
       "--with-pkgversion=Homebrew #{name} #{pkg_version} #{build.used_options*" "}".strip,
       "--with-bugurl=https://github.com/Homebrew/homebrew-versions/issues",
+      "CFLAGS=-m32",
+      "CXXFLAGS=-m32",
+      "LDFLAGS=-m32"
     ]
 
     # "Building GCC with plugin support requires a host that supports
