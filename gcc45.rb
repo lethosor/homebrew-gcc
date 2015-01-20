@@ -1,6 +1,6 @@
 require 'formula'
 
-class Gcc45sl < Formula
+class Gcc45 < Formula
   def arch
     if Hardware::CPU.type == :intel
       if MacOS.prefer_64_bit?
@@ -84,7 +84,7 @@ class Gcc45sl < Formula
       "--prefix=#{prefix}",
       "--enable-languages=#{languages.join(',')}",
       # Make most executables versioned to avoid conflicts.
-      "--program-suffix=-#{version_suffix}-sl",
+      "--program-suffix=-#{version_suffix}",
       "--with-gmp=#{Formula["gmp4"].opt_prefix}",
       "--with-mpfr=#{Formula["mpfr2"].opt_prefix}",
       "--with-mpc=#{Formula["libmpc08"].opt_prefix}",
@@ -105,8 +105,6 @@ class Gcc45sl < Formula
       "--disable-werror",
       "--with-pkgversion=Homebrew #{name} #{pkg_version} #{build.used_options*" "}".strip,
       "--with-bugurl=https://github.com/Homebrew/homebrew-versions/issues",
-      # 10.6 support
-      "-mmacosx-version-min=10.6",
     ]
 
     # "Building GCC with plugin support requires a host that supports
