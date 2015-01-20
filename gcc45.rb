@@ -105,6 +105,8 @@ class Gcc45 < Formula
       "--disable-werror",
       "--with-pkgversion=Homebrew #{name} #{pkg_version} #{build.used_options*" "}".strip,
       "--with-bugurl=https://github.com/Homebrew/homebrew-versions/issues",
+      # 10.6 support
+      "-mmacosx-version-min=10.6",
     ]
 
     # "Building GCC with plugin support requires a host that supports
