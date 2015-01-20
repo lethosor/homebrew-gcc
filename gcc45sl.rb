@@ -1,6 +1,6 @@
 require 'formula'
 
-class Gcc45 < Formula
+class Gcc45sl < Formula
   def arch
     if Hardware::CPU.type == :intel
       if MacOS.prefer_64_bit?
@@ -84,7 +84,7 @@ class Gcc45 < Formula
       "--prefix=#{prefix}",
       "--enable-languages=#{languages.join(',')}",
       # Make most executables versioned to avoid conflicts.
-      "--program-suffix=-#{version_suffix}",
+      "--program-suffix=-#{version_suffix}-sl",
       "--with-gmp=#{Formula["gmp4"].opt_prefix}",
       "--with-mpfr=#{Formula["mpfr2"].opt_prefix}",
       "--with-mpc=#{Formula["libmpc08"].opt_prefix}",
