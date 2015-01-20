@@ -21,9 +21,9 @@ class Gcc45 < Formula
     `uname -r`.chomp
   end
 
-  homepage 'http://gcc.gnu.org'
+  homepage 'https://gcc.gnu.org'
   url 'http://ftpmirror.gnu.org/gcc/gcc-4.5.4/gcc-4.5.4.tar.bz2'
-  mirror 'http://ftp.gnu.org/gnu/gcc/gcc-4.5.4/gcc-4.5.4.tar.bz2'
+  mirror 'https://ftp.gnu.org/gnu/gcc/gcc-4.5.4/gcc-4.5.4.tar.bz2'
   sha1 'cb692e6ddd1ca41f654e2ff24b1b57f09f40e211'
 
   option 'enable-fortran', 'Build the gfortran compiler'
@@ -44,25 +44,16 @@ class Gcc45 < Formula
   depends_on 'cloog-ppl015'
   depends_on 'ecj' if build.include? 'enable-java' or build.include? 'enable-all-languages'
 
-  # Fix libffi for ppc
-  # from MacPorts
+  # Fix libffi for ppc, from MacPorts
   patch :p0 do
-    url "http://trac.macports.org/export/110576/trunk/dports/lang/gcc45/files/ppc_fde_encoding.diff"
+    url "https://trac.macports.org/export/110576/trunk/dports/lang/gcc45/files/ppc_fde_encoding.diff"
     sha1 "49e335d085567467155ea6512ffa959a18eab0ef"
   end
 
   # Handle OS X deployment targets correctly (GCC PR target/63810 <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63810>).
-  # from MacPorts
   patch :p0 do
     url "https://trac.macports.org/export/129382/trunk/dports/lang/gcc45/files/macosx-version-min.patch"
     sha1 "79a3314759a33059cd6e3a078fdb3f5ee957d2e6"
-  end
-
-  # Don't link with "-flat_namespace -undefined suppress" on Yosemite and later (#45483)
-  # from MacPorts
-  patch :p0 do
-    url "https://trac.macports.org/export/129382/trunk/dports/lang/gcc45/files/yosemite-libtool.patch"
-    sha1 "49efed6a1c90a22d604d0ff6850271ad53c1205e"
   end
 
   fails_with :llvm
