@@ -37,7 +37,6 @@ class Gcc44 < Formula
   depends_on 'ppl011'
   depends_on 'cloog-ppl015'
   depends_on 'ecj' if build.include? 'enable-java' or build.include? 'enable-all-languages'
-  depends_on MaximumMacOSRequirement => :mavericks
 
   # Fix libffi for ppc, from MacPorts
   patch :p0 do
