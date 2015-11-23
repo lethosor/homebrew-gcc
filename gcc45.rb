@@ -58,13 +58,13 @@ class Gcc45 < Formula
 
   # Fix libffi for ppc, from MacPorts
   patch :p0 do
-    url "https://trac.macports.org/export/110576/trunk/dports/lang/gcc45/files/ppc_fde_encoding.diff"
+    url "https://raw.githubusercontent.com/lethosor/homebrew-gcc/0aed7d304bfbc8dcbe749889aaeef8ffbc681724/patches/gcc45/ppc_fde_encoding.diff"
     sha256 "9c5f6fd30d089e97e0364af322272bb06f3d107f357d2b621503ebfbbb4a5af7"
   end
 
   # Handle OS X deployment targets correctly (GCC PR target/63810 <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63810>).
   patch :p0 do
-    url "https://trac.macports.org/export/129382/trunk/dports/lang/gcc45/files/macosx-version-min.patch"
+    url "https://raw.githubusercontent.com/lethosor/homebrew-gcc/0aed7d304bfbc8dcbe749889aaeef8ffbc681724/patches/gcc45/macosx-version-min.diff"
     sha256 "9083143d2c60fbd89d33354710381590da770973746dd6849e18835f449510bc"
   end
 
