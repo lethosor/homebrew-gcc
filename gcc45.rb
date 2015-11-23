@@ -1,18 +1,16 @@
-require 'formula'
-
 class Gcc45 < Formula
   def arch
     if Hardware::CPU.type == :intel
       if MacOS.prefer_64_bit?
-        'x86_64'
+        "x86_64"
       else
-        'i686'
+        "i686"
       end
     elsif Hardware::CPU.type == :ppc
       if MacOS.prefer_64_bit?
-        'powerpc64'
+        "powerpc64"
       else
-        'powerpc'
+        "powerpc"
       end
     end
   end
@@ -21,51 +19,71 @@ class Gcc45 < Formula
     `uname -r`.chomp
   end
 
-  homepage 'https://gcc.gnu.org'
-  url 'http://ftpmirror.gnu.org/gcc/gcc-4.5.4/gcc-4.5.4.tar.bz2'
-  mirror 'https://ftp.gnu.org/gnu/gcc/gcc-4.5.4/gcc-4.5.4.tar.bz2'
-  sha1 'cb692e6ddd1ca41f654e2ff24b1b57f09f40e211'
+  desc "GNU compiler collection"
+  homepage "https://gcc.gnu.org"
+  url "http://ftpmirror.gnu.org/gcc/gcc-4.5.4/gcc-4.5.4.tar.bz2"
+  mirror "https://ftp.gnu.org/gnu/gcc/gcc-4.5.4/gcc-4.5.4.tar.bz2"
+  sha256 "eef3f0456db8c3d992cbb51d5d32558190bc14f3bc19383dd93acc27acc6befc"
 
-  option 'enable-fortran', 'Build the gfortran compiler'
-  option 'enable-java', 'Build the gcj compiler'
-  option 'enable-all-languages', 'Enable all compilers and languages, except Ada'
-  option 'enable-nls', 'Build with native language support (localization)'
-  option 'enable-profiled-build', 'Make use of profile guided optimization when bootstrapping GCC'
+  bottle do
+    sha256 "16c2a3e56e2da8ec6b38b36c54112d7c56bc05f71168fb867f586cb190c5fef7" => :yosemite
+    sha256 "51b73412c9628a593e765105a098ed1500b04574145391f3f93972e54d5b1b05" => :mavericks
+    sha256 "06806e0a4aa703b0cacb4a3e10b4c8738d3d97535c6dd52796ec5a85eee0638d" => :mountain_lion
+  end
+
+  option "with-fortran", "Build the gfortran compiler"
+  option "with-java", "Build the gcj compiler"
+  option "with-all-languages", "Enable all compilers and languages, except Ada"
+  option "with-nls", "Build with native language support (localization)"
+  option "with-profiled-build", "Make use of profile guided optimization when bootstrapping GCC"
   # enabling multilib on a host that can't run 64-bit results in build failures
-  option 'disable-multilib', 'Build without multilib support' if MacOS.prefer_64_bit?
+  option "without-multilib", "Build without multilib support" if MacOS.prefer_64_bit?
+
+  deprecated_option "enable-fortran" => "with-fortran"
+  deprecated_option "enable-java" => "with-java"
+  deprecated_option "enable-all-languages" => "with-all-languages"
+  deprecated_option "enable-nls" => "with-nls"
+  deprecated_option "enable-profiled-build" => "with-profiled-build"
+  deprecated_option "disable-multilib" => "without-multilib"
 
   # with system ld on Tiger, build fails with countless messages of:
   # "relocation overflow for relocation entry"
   depends_on :ld64
-  depends_on 'gmp4'
-  depends_on 'libmpc08'
-  depends_on 'mpfr2'
-  depends_on 'ppl011'
-  depends_on 'cloog-ppl015'
-  depends_on 'ecj' if build.include? 'enable-java' or build.include? 'enable-all-languages'
+  depends_on "gmp4"
+  depends_on "libmpc08"
+  depends_on "mpfr2"
+  depends_on "ppl011"
+  depends_on "cloog-ppl015"
+  depends_on "ecj" if build.with?("java") || build.with?("all-languages")
 
   # Fix libffi for ppc, from MacPorts
   patch :p0 do
     url "https://trac.macports.org/export/110576/trunk/dports/lang/gcc45/files/ppc_fde_encoding.diff"
-    sha1 "49e335d085567467155ea6512ffa959a18eab0ef"
+    sha256 "9c5f6fd30d089e97e0364af322272bb06f3d107f357d2b621503ebfbbb4a5af7"
   end
 
   # Handle OS X deployment targets correctly (GCC PR target/63810 <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63810>).
   patch :p0 do
     url "https://trac.macports.org/export/129382/trunk/dports/lang/gcc45/files/macosx-version-min.patch"
-    sha1 "79a3314759a33059cd6e3a078fdb3f5ee957d2e6"
+    sha256 "9083143d2c60fbd89d33354710381590da770973746dd6849e18835f449510bc"
   end
 
   fails_with :llvm
+
+  # The bottles are built on systems with the CLT installed, and do not work
+  # out of the box on Xcode-only systems due to an incorrect sysroot.
+  def pour_bottle?
+    MacOS::CLT.installed?
+  end
 
   # GCC bootstraps itself, so it is OK to have an incompatible C++ stdlib
   cxxstdlib_check :skip
 
   def install
     # GCC will suffer build errors if forced to use a particular linker.
-    ENV.delete 'LD'
+    ENV.delete "LD"
 
-    if build.include? 'enable-all-languages'
+    if build.with? "all-languages"
       # Everything but Ada, which requires a pre-existing GCC Ada compiler
       # (gnat) to bootstrap.
       languages = %w[c c++ fortran java objc obj-c++]
@@ -73,8 +91,8 @@ class Gcc45 < Formula
       # C, C++, ObjC compilers are always built
       languages = %w[c c++ objc obj-c++]
 
-      languages << 'fortran' if build.include? 'enable-fortran'
-      languages << 'java' if build.include? 'enable-java'
+      languages << "fortran" if build.with? "fortran"
+      languages << "java" if build.with? "java"
     end
 
     version_suffix = version.to_s.slice(/\d\.\d/)
@@ -82,7 +100,7 @@ class Gcc45 < Formula
     args = [
       "--build=#{arch}-apple-darwin#{osmajor}",
       "--prefix=#{prefix}",
-      "--enable-languages=#{languages.join(',')}",
+      "--enable-languages=#{languages.join(",")}",
       # Make most executables versioned to avoid conflicts.
       "--program-suffix=-#{version_suffix}",
       "--with-gmp=#{Formula["gmp4"].opt_prefix}",
@@ -113,69 +131,65 @@ class Gcc45 < Formula
 
     # Otherwise make fails during comparison at stage 3
     # See: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=45248
-    args << '--with-dwarf2' if MacOS.version < :leopard
+    args << "--with-dwarf2" if MacOS.version < :leopard
 
-    args << '--disable-nls' unless build.include? 'enable-nls'
+    args << "--disable-nls" if build.without? "nls"
 
-    if build.include? 'enable-java' or build.include? 'enable-all-languages'
+    if build.with?("java") || build.with?("all-languages")
       args << "--with-ecj-jar=#{Formula["ecj"].opt_prefix}/share/java/ecj.jar"
     end
 
-    if !MacOS.prefer_64_bit? || build.include?('disable-multilib')
-      args << '--disable-multilib'
+    if !MacOS.prefer_64_bit? || build.without?("multilib")
+      args << "--disable-multilib"
     else
-      args << '--enable-multilib'
+      args << "--enable-multilib"
     end
 
-    mkdir 'build' do
+    mkdir "build" do
       unless MacOS::CLT.installed?
         # For Xcode-only systems, we need to tell the sysroot path.
-        # 'native-system-header's will be appended
+        # "native-system-headers" will be appended
         args << "--with-native-system-header-dir=/usr/include"
         args << "--with-sysroot=#{MacOS.sdk_path}"
       end
 
-      system '../configure', *args
+      system "../configure", *args
 
-      if build.include? 'enable-profiled-build'
+      if build.with? "profiled-build"
         # Takes longer to build, may bug out. Provided for those who want to
         # optimise all the way to 11.
-        system 'make profiledbootstrap'
+        system "make", "profiledbootstrap"
       else
-        system 'make bootstrap'
+        system "make", "bootstrap"
       end
 
       # At this point `make check` could be invoked to run the testsuite. The
       # deja-gnu formula must be installed in order to do this.
-
-      system 'make install'
+      system "make", "install"
 
       # `make install` neglects to transfer an essential plugin header file.
-      Pathname.new(Dir[prefix.join *%w[** plugin include config]].first).install '../gcc/config/darwin-sections.def' if MacOS.version > :tiger
+      Pathname.new(Dir[prefix.join "**", "plugin", "include", "config"].first).install "../gcc/config/darwin-sections.def" if MacOS.version > :tiger
     end
 
     # Handle conflicts between GCC formulae.
-
     # Remove libffi stuff, which is not needed after GCC is built.
     Dir.glob(prefix/"**/libffi.*") { |file| File.delete file }
-
     # Rename libiberty.a.
     Dir.glob(prefix/"**/libiberty.*") { |file| add_suffix file, version_suffix }
-
     # Rename man7.
     Dir.glob(man7/"*.7") { |file| add_suffix file, version_suffix }
 
     # Even when suffixes are appended, the info pages conflict when
-    # install-info is run. TODO fix this.
+    # install-info is run. Fix this.
     info.rmtree
 
     # Rename java properties
-    if build.include? 'enable-java' or build.include? 'enable-all-languages'
+    if build.with?("java") || build.with?("all-languages")
       config_files = [
         "#{lib}/logging.properties",
         "#{lib}/security/classpath.security",
         "#{lib}/i386/logging.properties",
-        "#{lib}/i386/security/classpath.security"
+        "#{lib}/i386/security/classpath.security",
       ]
 
       config_files.each do |file|
@@ -184,10 +198,23 @@ class Gcc45 < Formula
     end
   end
 
-  def add_suffix file, suffix
+  def add_suffix(file, suffix)
     dir = File.dirname(file)
     ext = File.extname(file)
     base = File.basename(file, ext)
     File.rename file, "#{dir}/#{base}-#{suffix}#{ext}"
+  end
+
+  test do
+    (testpath/"hello-c.c").write <<-EOS.undent
+      #include <stdio.h>
+      int main()
+      {
+        puts("Hello, world!");
+        return 0;
+      }
+    EOS
+    system bin/"gcc-4.5", "-o", "hello-c", "hello-c.c"
+    assert_equal "Hello, world!\n", `./hello-c`
   end
 end
