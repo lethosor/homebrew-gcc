@@ -1,4 +1,4 @@
-class GccAT7 < Formula
+class Gcc73 < Formula
   desc "GNU compiler collection"
   homepage "https://gcc.gnu.org/"
   url "https://ftp.gnu.org/gnu/gcc/gcc-7.3.0/gcc-7.3.0.tar.xz"
